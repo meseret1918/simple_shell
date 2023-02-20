@@ -130,4 +130,4 @@ void creat_envi(char **envi);
 unsigned int check_delim(char c, const char *str);
 char *_strtok(char *str, const char *tok);
 
-#endif
+#endif /* SHELL_H */
