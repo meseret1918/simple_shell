@@ -1,95 +1,74 @@
 #include "shell.h"
+
 /**
- * read_file - Read Command From File
- * @filename:Filename
- * @argv:Program Name
- * Return: -1 or  0
+ * clear_info - initializes info_t struct
+ * @info: struct address
  */
-
-void read_file(char *filename, char **argv)
+void clear_info(info_t *info)
 {
-	FILE *fp;
-	char *line = NULL;
-	size_t len = 0;
-	int counter = 0;
-
-	fp = fopen(filename, "r");
-	if (fp == NULL)
-	{
-		exit(EXIT_FAILURE);
-	}
-	while ((getline(&line, &len, fp)) != -1)
-	{
-		counter++;
-		treat_file(line, counter, fp, argv);
-
-	}
-	if (line)
-		free(line);
-	fclose(fp);
-	exit(0);
+	info->arg = NULL;
+	info->argv = NULL;
+	info->path = NULL;
+	info->argc = 0;
 }
+
 /**
- * treat_file - PARSE Check Command Fork Wait Excute in Line of File
- * @line: Line From A File
- * @counter:Error Counter
- * @fp:File Descriptor
- * @argv:Program Name
- * Return : Excute A line void
+ * set_info - initializes info_t struct
+ * @info: struct address
+ * @av: argument vector
  */
-void treat_file(char *line, int counter, FILE *fp, char **argv)
+void set_info(info_t *info, char **av)
 {
-	char **cmd;
-	int st = 0;
+	int i = 0;
 
-	cmd = parse_cmd(line);
+	info->fname = av[0];
+	if (info->arg)
+	{
+		info->argv = strtow(info->arg, " \t");
+		if (!info->argv)
+		{
 
-		if (_strncmp(cmd[0], "exit", 4) == 0)
-		{
-			exit_bul_for_file(cmd, line, fp);
+			info->argv = malloc(sizeof(char *) * 2);
+			if (info->argv)
+			{
+				info->argv[0] = _strdup(info->arg);
+				info->argv[1] = NULL;
+			}
 		}
-		else if (check_builtin(cmd) == 0)
-		{
-			st = handle_builtin(cmd, st);
-			free(cmd);
-		}
-		else
-		{
-			st = check_cmd(cmd, line, counter, argv);
-			free(cmd);
-		}
+		for (i = 0; info->argv && info->argv[i]; i++)
+			;
+		info->argc = i;
+
+		replace_alias(info);
+		replace_vars(info);
+	}
 }
+
 /**
- * exit_bul_for_file - Exit Shell Case Of File
- * @line: Line From A File
- * @cmd: Parsed Command
- * @fd:File Descriptor
- * Return : Case Of Exit in A File Line
+ * free_info - frees info_t struct fields
+ * @info: struct address
+ * @all: true if freeing all fields
  */
-void exit_bul_for_file(char **cmd, char *line, FILE *fd)
+void free_info(info_t *info, int all)
 {
-	int statue, i = 0;
-
-	if (cmd[1] == NULL)
+	ffree(info->argv);
+	info->argv = NULL;
+	info->path = NULL;
+	if (all)
 	{
-		free(line);
-		free(cmd);
-		fclose(fd);
-		exit(errno);
+		if (!info->cmd_buf)
+			free(info->arg);
+		if (info->env)
+			free_list(&(info->env));
+		if (info->history)
+			free_list(&(info->history));
+		if (info->alias)
+			free_list(&(info->alias));
+		ffree(info->environ);
+			info->environ = NULL;
+		bfree((void **)info->cmd_buf);
+		if (info->readfd > 2)
+			close(info->readfd);
+		_putchar(BUF_FLUSH);
 	}
-	while (cmd[1][i])
-	{
-		if (_isalpha(cmd[1][i++]) < 0)
-		{
-			perror("illegal number");
-		}
-	}
-	statue = _atoi(cmd[1]);
-	free(line);
-	free(cmd);
-	fclose(fd);
-	exit(statue);
-
-
-
 }

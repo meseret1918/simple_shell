@@ -1,97 +1,75 @@
 #include "shell.h"
 
 /**
- * _putchar - writes the character c to stdout
- * @c: The character to print
+ * _strlen - returns the length of a string
+ * @s: the string whose length to check
  *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
+ * Return: integer length of string
  */
-int _putchar(char c)
-{
-	return (write(1, &c, 1));
-}
-/**
- * _strncpy - copie a string
- * @dest:char
- *  @src:char
- * @n:int
- * Return:char
- */
-
-char *_strncpy(char *dest, char *src, int n)
-{
-int i;
-
-i = 0;
-	while (i < n && *(src + i))
-	{
-	*(dest + i) = *(src + i);
-	i++;
-	}
-	while (i < n)
-	{
-	*(dest + i) = '\0';
-	i++;
-	}
-	return (dest);
-}
-
-/**
- * _strlen - lenght of string
- * @s:char
- * Return:int
- */
-
 int _strlen(char *s)
 {
-	int i;
+	int i = 0;
 
-		for (i = 0; s[i] != '\0'; i++)
-		{
-			continue;
-		}
-return (i);
-}
+	if (!s)
+		return (0);
 
-/**
- * _atoi - convert to a int
- * @s:string
- * Return:int
- */
-int _atoi(char *s)
-{
-int i, j, n, x;
-
-	i = n = 0;
-	x = 1;
-	while ((s[i] < '0' || s[i] > '9') && (s[i] != '\0'))
-	{
-		if (s[i] == '-')
-			x *= -1;
+	while (*s++)
 		i++;
-	}
-	j = i;
-	while ((s[j] >= '0') && (s[j] <= '9'))
-	{
-		n = (n * 10) + x * ((s[j]) - '0');
-		j++;
-	}
-	return (n);
+	return (i);
 }
-/**
- * _puts - print a string
- * @str:pointer char
- * return:void
- */
-void _puts(char *str)
-{
-	int i;
 
-	for (i = 0; str[i] != '\0'; i++)
+/**
+ * _strcmp - performs lexicogarphic comparison of two strangs.
+ * @s1: the first strang
+ * @s2: the second strang
+ *
+ * Return: negative if s1 < s2, positive if s1 > s2, zero if s1 == s2
+ */
+int _strcmp(char *s1, char *s2)
+{
+	while (*s1 && *s2)
 	{
-		_putchar(str[i]);
+		if (*s1 != *s2)
+			return (*s1 - *s2);
+		s1++;
+		s2++;
 	}
-_putchar('\n');
-return;
+	if (*s1 == *s2)
+		return (0);
+	else
+		return (*s1 < *s2 ? -1 : 1);
+}
+
+/**
+ * starts_with - checks if needle starts with haystack
+ * @haystack: string to search
+ * @needle: the substring to find
+ *
+ * Return: address of next char of haystack or NULL
+ */
+char *starts_with(const char *haystack, const char *needle)
+{
+	while (*needle)
+		if (*needle++ != *haystack++)
+			return (NULL);
+	return ((char *)haystack);
+}
+
+/**
+ * _strcat - concatenates two strings
+ * @dest: the destination buffer
+ * @src: the source buffer
+ *
+ * Return: pointer to destination buffer
+ */
+char *_strcat(char *dest, char *src)
+{
+	char *ret = dest;
+
+	while (*dest)
+		dest++;
+	while (*src)
+		*dest++ = *src++;
+	*dest = *src;
+	return (ret);
 }
